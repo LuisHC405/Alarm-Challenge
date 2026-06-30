@@ -38,11 +38,10 @@ npm test
 
 ## Configuracao
 
-O projeto usa um arquivo `.env` para configurar a porta e a quantidade padrao de tentativas:
+O projeto usa um arquivo `.env` para configurar a porta:
 
 ```bash
 PORT=3001
-MAX_ATTEMPTS=5
 ```
 
 ## Como a API Funciona
