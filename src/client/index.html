@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alarm Challenge</title>
+  <link rel="stylesheet" href="/client/styles.css">
+  <script type="module" src="/client/app.js"></script>
+</head>
+<body>
+  <main id="app">
+    <section class="topbar">
+      <div class="brand">
+        <h1>Alarm Challenge</h1>
+        <p class="subtitle">Alarme ativo, desafio na tela, silencio so depois do acerto.</p>
+      </div>
+      <div class="api-pill" id="apiStatus">Verificando API</div>
+    </section>
+
+    <section class="layout">
+      <div class="alarm-panel">
+        <div class="status" id="statusLabel">
+          <span class="dot"></span>
+          <span>Alarme desligado</span>
+        </div>
+
+        <div class="question" id="question">--</div>
+
+        <div class="answer-row">
+          <textarea id="answer" placeholder="Resposta" disabled></textarea>
+          <button class="primary" id="answerBtn" disabled>Responder</button>
+        </div>
+
+        <div class="message" id="message">Escolha um horario e agende o alarme.</div>
+
+        <div class="controls">
+          <button class="primary" id="scheduleBtn">Agendar alarme</button>
+        </div>
+      </div>
+
+      <aside class="side-panel">
+        <div class="tabs" role="tablist" aria-label="Tipo de desafio">
+          <button class="tab active" id="mathTab" type="button">Matematica</button>
+          <button class="tab" id="programmingTab" type="button">Programacao</button>
+        </div>
+
+        <div class="field">
+          <label for="alarmTime">Horario do alarme</label>
+          <input id="alarmTime" type="time">
+        </div>
+
+        <div class="field">
+          <label for="difficulty">Dificuldade</label>
+          <select id="difficulty">
+            <option value="easy">Facil</option>
+            <option value="medium" selected>Medio</option>
+            <option value="hard">Dificil</option>
+          </select>
+        </div>
+
+        <div class="preview" id="difficultyPreview">
+          <span>Preview da dificuldade</span>
+          <strong>Medio</strong>: operacoes variadas com numeros moderados.
+          <em>Exemplos: 8 x 7, 48 / 6.</em>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <span>Status</span>
+            <strong id="statStatus">Off</strong>
+          </div>
+          <div class="stat">
+            <span>Tentativas</span>
+            <strong id="statAttempts">0/5</strong>
+          </div>
+          <div class="stat">
+            <span>Acertos</span>
+            <strong id="statWins">0</strong>
+          </div>
+          <div class="stat">
+            <span>Erros</span>
+            <strong id="statErrors">0</strong>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>
