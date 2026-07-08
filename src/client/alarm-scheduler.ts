@@ -1,3 +1,4 @@
+// @ts-nocheck
 export class AlarmScheduler {
   constructor({ input, onTick, onTrigger }) {
     this.input = input;

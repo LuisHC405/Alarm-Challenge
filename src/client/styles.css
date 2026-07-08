@@ -340,6 +340,38 @@ label {
   font-weight: 700;
 }
 
+.alarm-list {
+  display: grid;
+  gap: 8px;
+}
+
+.alarm-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(8, 25, 45, 0.72);
+}
+
+.alarm-item strong,
+.alarm-item small {
+  display: block;
+}
+
+.alarm-item small {
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.alarm-item button {
+  min-height: 36px;
+  padding: 0 12px;
+  background: var(--danger);
+}
+
 @media (max-width: 820px) {
   main {
     width: min(100% - 20px, 640px);

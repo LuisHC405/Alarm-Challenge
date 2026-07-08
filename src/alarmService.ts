@@ -1,8 +1,29 @@
-const { generateChallenge, isCorrectChallengeAnswer, pickChallengeType } = require('./challenges');
-const { pickDifficulty } = require('./challenges/math');
+import { generateChallenge, isCorrectChallengeAnswer, pickChallengeType } from './challenges';
+import { pickDifficulty } from './challenges/math';
+import type { ChallengeType, Difficulty } from './models/alarm';
 
-function createAlarmService(defaultMaxAttempts) {
-  const alarmState = {
+type AlarmState = {
+  isActive: boolean;
+  challengeType: ChallengeType;
+  currentQuestion: string | null;
+  correctAnswer: string | number | null;
+  acceptedAnswers: string[];
+  attemptCount: number;
+  maxAttempts: number;
+  difficulty: Difficulty;
+  startedAt: string | null;
+  solvedAt: string | null;
+};
+
+type AlarmResponse = {
+  httpStatus: number;
+  body: Record<string, unknown>;
+};
+
+export type AlarmService = ReturnType<typeof createAlarmService>;
+
+export function createAlarmService(defaultMaxAttempts: number) {
+  const alarmState: AlarmState = {
     isActive: false,
     challengeType: 'math',
     currentQuestion: null,
@@ -30,16 +51,19 @@ function createAlarmService(defaultMaxAttempts) {
     };
   }
 
-  function startNewChallenge(difficulty = alarmState.difficulty, challengeType = alarmState.challengeType) {
-    const challenge = generateChallenge(challengeType, difficulty);
+  function startNewChallenge(difficulty: unknown = alarmState.difficulty, challengeType: unknown = alarmState.challengeType) {
+    const selectedChallengeType = pickChallengeType(challengeType);
+    const selectedDifficulty = pickDifficulty(difficulty);
+    const challenge = generateChallenge(selectedChallengeType, selectedDifficulty);
 
     alarmState.isActive = true;
-    alarmState.challengeType = pickChallengeType(challengeType);
+    alarmState.challengeType = selectedChallengeType;
     alarmState.currentQuestion = challenge.question;
     alarmState.correctAnswer = challenge.correctAnswer;
-    alarmState.acceptedAnswers = challenge.acceptedAnswers || [String(challenge.correctAnswer)];
+    alarmState.acceptedAnswers =
+      'acceptedAnswers' in challenge ? challenge.acceptedAnswers : [String(challenge.correctAnswer)];
     alarmState.attemptCount = 0;
-    alarmState.difficulty = pickDifficulty(difficulty);
+    alarmState.difficulty = selectedDifficulty;
     alarmState.startedAt = alarmState.startedAt || new Date().toISOString();
     alarmState.solvedAt = null;
   }
@@ -54,11 +78,11 @@ function createAlarmService(defaultMaxAttempts) {
     alarmState.solvedAt = new Date().toISOString();
   }
 
-  function configureAttempts(maxAttempts) {
+  function configureAttempts(maxAttempts: number) {
     alarmState.maxAttempts = Number.isInteger(maxAttempts) && maxAttempts > 0 ? maxAttempts : defaultMaxAttempts;
   }
 
-  function validateAnswer(answer) {
+  function validateAnswer(answer: unknown): boolean {
     alarmState.attemptCount += 1;
 
     return isCorrectChallengeAnswer({
@@ -69,7 +93,7 @@ function createAlarmService(defaultMaxAttempts) {
     });
   }
 
-  function answerChallenge(answer) {
+  function answerChallenge(answer: unknown): AlarmResponse {
     if (validateAnswer(answer)) {
       const attempts = alarmState.attemptCount;
       stopAlarm();
@@ -127,7 +151,3 @@ function createAlarmService(defaultMaxAttempts) {
     validateAnswer,
   };
 }
-
-module.exports = {
-  createAlarmService,
-};

@@ -1,11 +1,10 @@
-require('dotenv').config();
-
-const { createApp } = require('./src/serverApp');
+import 'dotenv/config';
+import { createApp } from './src/serverApp';
 
 const PORT = Number(process.env.PORT) || 3000;
 const DEFAULT_MAX_ATTEMPTS = Number(process.env.MAX_ATTEMPTS) || 5;
 const { app, alarm } = createApp({
-  rootDir: __dirname,
+  rootDir: process.cwd(),
   defaultMaxAttempts: DEFAULT_MAX_ATTEMPTS,
 });
 
@@ -15,9 +14,7 @@ if (require.main === module) {
   });
 }
 
-module.exports = {
-  app,
-  alarmState: alarm.alarmState,
-  startNewChallenge: alarm.startNewChallenge,
-  stopAlarm: alarm.stopAlarm,
-};
+export const alarmState = alarm.alarmState;
+export const startNewChallenge = alarm.startNewChallenge;
+export const stopAlarm = alarm.stopAlarm;
+export { app };

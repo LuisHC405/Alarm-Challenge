@@ -1,3 +1,4 @@
+// @ts-nocheck
 export class AlarmAudio {
   constructor({ src, baseVolume = 0.08, maxVolume = 0.9, volumeStep = 0.14, fadeSeconds = 0.18 }) {
     this.src = src;

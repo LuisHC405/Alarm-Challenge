@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { challengeDetails } from './challenge-details.js';
 
 export class ChallengeSelector {

@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node10",
+    "moduleDetection": "force",
+    "rootDir": ".",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "composite": true,
+    "tsBuildInfoFile": "dist/tsconfig.server.tsbuildinfo",
+    "types": ["node"]
+  },
+  "include": [
+    "server.ts",
+    "server.test.ts",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/client/**/*.ts",
+    "node_modules",
+    "dist",
+    "public/client"
+  ]
+}

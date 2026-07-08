@@ -1,3 +1,4 @@
+// @ts-nocheck
 export class AlarmView {
   constructor(elements) {
     this.elements = elements;

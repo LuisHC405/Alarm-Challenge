@@ -1,7 +1,14 @@
-const { pickDifficulty } = require('./math');
-const { randomInt } = require('../utils/random');
+import { pickDifficulty } from './math';
+import { randomInt } from '../utils/random';
+import type { Difficulty } from '../models/alarm';
 
-const programmingChallenges = {
+export type ProgrammingChallenge = {
+  question: string;
+  correctAnswer: string;
+  acceptedAnswers: string[];
+};
+
+export const programmingChallenges: Record<Difficulty, ProgrammingChallenge[]> = {
   easy: [
     {
       question: 'TypeScript: escreva uma linha que mostre Hello World no console.',
@@ -67,7 +74,7 @@ const programmingChallenges = {
   ],
 };
 
-function normalizeCodeAnswer(value) {
+export function normalizeCodeAnswer(value: unknown): string {
   return String(value)
     .trim()
     .replace(/[""]/g, '"')
@@ -77,19 +84,12 @@ function normalizeCodeAnswer(value) {
     .toLowerCase();
 }
 
-function generateProgrammingChallenge(difficulty = 'medium') {
+export function generateProgrammingChallenge(difficulty: unknown = 'medium'): ProgrammingChallenge {
   const list = programmingChallenges[pickDifficulty(difficulty)];
   return list[randomInt(0, list.length - 1)];
 }
 
-function isCorrectProgrammingAnswer(answer, acceptedAnswers) {
+export function isCorrectProgrammingAnswer(answer: unknown, acceptedAnswers: string[] = []): boolean {
   const normalizedAnswer = normalizeCodeAnswer(answer);
-  return acceptedAnswers.some((acceptedAnswer) => normalizeCodeAnswer(acceptedAnswer) === normalizedAnswer);
+  return acceptedAnswers.some((acceptedAnswer: string) => normalizeCodeAnswer(acceptedAnswer) === normalizedAnswer);
 }
-
-module.exports = {
-  generateProgrammingChallenge,
-  isCorrectProgrammingAnswer,
-  normalizeCodeAnswer,
-  programmingChallenges,
-};

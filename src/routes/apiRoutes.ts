@@ -1,9 +1,9 @@
-const express = require('express');
+import { Router, type Request, type Response } from 'express';
 
-function createApiRouter() {
-  const router = express.Router();
+export function createApiRouter(): Router {
+  const router = Router();
 
-  router.get('/', (req, res) => {
+  router.get('/', (_req: Request, res: Response) => {
     res.status(200).json({
       message: 'API Alarm Challenge online',
       version: '2.0.0',
@@ -13,13 +13,14 @@ function createApiRouter() {
         'GET /alarm/status': 'Mostra o estado atual do alarme',
         'GET /alarm/question': 'Mostra a questao atual',
         'POST /alarm/answer': 'Valida a resposta enviada',
+        'GET /alarms': 'Lista alarmes salvos',
+        'POST /alarms': 'Cria um alarme',
+        'GET /alarms/:id': 'Busca um alarme',
+        'PUT /alarms/:id': 'Atualiza um alarme',
+        'DELETE /alarms/:id': 'Remove um alarme',
       },
     });
   });
 
   return router;
 }
-
-module.exports = {
-  createApiRouter,
-};

@@ -5,7 +5,19 @@ const { app, alarmState, stopAlarm } = require('./server');
 const { generateMathQuestion } = require('./src/challenges/math');
 const { generateProgrammingChallenge, normalizeCodeAnswer } = require('./src/challenges/programming');
 
-function listen() {
+import type { IncomingMessage } from 'node:http';
+
+type TestServer = {
+  server: import('node:http').Server;
+  baseUrl: string;
+};
+
+type TestResponse = {
+  status: number | undefined;
+  body: any;
+};
+
+function listen(): Promise<TestServer> {
   const server = http.createServer(app);
 
   return new Promise((resolve) => {
@@ -16,7 +28,7 @@ function listen() {
   });
 }
 
-function request(baseUrl, path, options = {}) {
+function request(baseUrl: string, path: string, options: { method?: string; body?: unknown } = {}): Promise<TestResponse> {
   return new Promise((resolve, reject) => {
     const url = new URL(path, baseUrl);
     const body = options.body ? JSON.stringify(options.body) : null;
@@ -29,9 +41,9 @@ function request(baseUrl, path, options = {}) {
           ...(body ? { 'Content-Length': Buffer.byteLength(body) } : {}),
         },
       },
-      (res) => {
+      (res: IncomingMessage) => {
         let data = '';
-        res.on('data', (chunk) => {
+        res.on('data', (chunk: Buffer) => {
           data += chunk;
         });
         res.on('end', () => {
@@ -142,6 +154,48 @@ test('exhausted attempts keep alarm active with a new question', async () => {
     assert.equal(answered.body.attemptsUsed, 0);
   } finally {
     stopAlarm();
+    server.close();
+  }
+});
+
+test('alarm CRUD creates, lists, updates and deletes saved alarms', async () => {
+  stopAlarm();
+  const { server, baseUrl } = await listen();
+
+  try {
+    const created = await request(baseUrl, '/alarms', {
+      method: 'POST',
+      body: {
+        name: 'Teste CRUD',
+        time: '07:30',
+        challengeType: 'programming',
+        difficulty: 'hard',
+      },
+    });
+
+    assert.equal(created.status, 201);
+    assert.equal(created.body.alarm.name, 'Teste CRUD');
+    assert.equal(created.body.alarm.time, '07:30');
+
+    const listed = await request(baseUrl, '/alarms');
+    assert.equal(listed.status, 200);
+    assert.ok(listed.body.alarms.some((alarm: any) => alarm.id === created.body.alarm.id));
+
+    const updated = await request(baseUrl, `/alarms/${created.body.alarm.id}`, {
+      method: 'PUT',
+      body: { name: 'Teste Atualizado', enabled: false },
+    });
+
+    assert.equal(updated.status, 200);
+    assert.equal(updated.body.alarm.name, 'Teste Atualizado');
+    assert.equal(updated.body.alarm.enabled, false);
+
+    const deleted = await request(baseUrl, `/alarms/${created.body.alarm.id}`, {
+      method: 'DELETE',
+    });
+
+    assert.equal(deleted.status, 204);
+  } finally {
     server.close();
   }
 });

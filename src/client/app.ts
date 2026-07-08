@@ -1,6 +1,6 @@
+// @ts-nocheck
 import { AlarmApi } from './alarm-api.js';
 import { AlarmAudio } from './alarm-audio.js';
-import { AlarmScheduler } from './alarm-scheduler.js';
 import { AlarmView } from './alarm-view.js';
 import { ChallengeSelector } from './challenge-selector.js';
 
@@ -16,6 +16,8 @@ const elements = {
   programmingTab: document.getElementById('programmingTab'),
   message: document.getElementById('message'),
   alarmTime: document.getElementById('alarmTime'),
+  alarmName: document.getElementById('alarmName'),
+  alarmList: document.getElementById('alarmList'),
   difficulty: document.getElementById('difficulty'),
   difficultyPreview: document.getElementById('difficultyPreview'),
   statStatus: document.getElementById('statStatus'),
@@ -34,24 +36,21 @@ const challengeSelector = new ChallengeSelector({
   programmingTab: elements.programmingTab,
   answer: elements.answer,
 });
-const scheduler = new AlarmScheduler({
-  input: elements.alarmTime,
-  onTick: ({ scheduledTime, minutes, seconds }) => {
-    view.setMessage(`Alarme agendado para ${formatTime(scheduledTime)}. Faltam ${minutes}m ${String(seconds).padStart(2, '0')}s.`);
-  },
-  onTrigger: startAlarm,
-});
 
 const score = {
   wins: 0,
   errors: 0,
 };
+let savedAlarms = [];
+const triggeredAlarms = new Set();
 
-function formatTime(date) {
-  return date.toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+function todayTriggerKey(alarm) {
+  return `${alarm.id}:${new Date().toISOString().slice(0, 10)}`;
+}
+
+function currentTime() {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 }
 
 async function checkApi() {
@@ -76,18 +75,28 @@ async function refreshStatus() {
   }
 }
 
-async function startAlarm() {
+async function startAlarm(alarm = null) {
   try {
     audio.resetVolume();
     const { response, data } = await api.start({
-      difficulty: challengeSelector.difficulty,
-      challengeType: challengeSelector.type,
+      difficulty: alarm?.difficulty || challengeSelector.difficulty,
+      challengeType: alarm?.challengeType || challengeSelector.type,
     });
 
     renderAlarmState(data);
     view.setMessage(response.ok ? 'Horario atingido. Resolva o desafio para desligar o alarme.' : data.message, response.ok ? 'info' : 'error');
   } catch (error) {
     view.setMessage('Nao foi possivel iniciar o alarme.', 'error');
+  }
+}
+
+async function loadAlarms() {
+  try {
+    const { data } = await api.listAlarms();
+    savedAlarms = data.alarms || [];
+    renderAlarmList();
+  } catch (error) {
+    view.setMessage('Nao foi possivel carregar os alarmes salvos.', 'error');
   }
 }
 
@@ -136,14 +145,79 @@ function renderAlarmState(data) {
   }
 }
 
-function scheduleAlarm() {
-  if (!scheduler.schedule()) {
+async function scheduleAlarm() {
+  if (!elements.alarmTime.value) {
     view.setMessage('Escolha um horario para o alarme tocar.', 'error');
+    return;
   }
+
+  try {
+    await api.createAlarm({
+      name: elements.alarmName.value || 'Alarme',
+      time: elements.alarmTime.value,
+      difficulty: challengeSelector.difficulty,
+      challengeType: challengeSelector.type,
+      enabled: true,
+    });
+    elements.alarmName.value = '';
+    await loadAlarms();
+    view.setMessage('Alarme salvo no banco de dados.', 'success');
+  } catch (error) {
+    view.setMessage('Nao foi possivel salvar o alarme.', 'error');
+  }
+}
+
+async function deleteAlarm(id) {
+  try {
+    await api.deleteAlarm(id);
+    triggeredAlarms.delete(id);
+    await loadAlarms();
+    view.setMessage('Alarme removido.', 'success');
+  } catch (error) {
+    view.setMessage('Nao foi possivel remover o alarme.', 'error');
+  }
+}
+
+function renderAlarmList() {
+  if (savedAlarms.length === 0) {
+    elements.alarmList.innerHTML = 'Nenhum alarme salvo.';
+    return;
+  }
+
+  elements.alarmList.innerHTML = `
+    <div class="alarm-list">
+      ${savedAlarms.map((alarm) => `
+        <div class="alarm-item">
+          <div>
+            <strong>${alarm.time} - ${alarm.name}</strong>
+            <small>${alarm.challengeType} / ${alarm.difficulty}</small>
+          </div>
+          <button type="button" data-delete-alarm="${alarm.id}">Remover</button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function watchSavedAlarms() {
+  window.setInterval(() => {
+    const now = currentTime();
+    const alarm = savedAlarms.find((item) => item.enabled && item.time === now && !triggeredAlarms.has(todayTriggerKey(item)));
+    if (!alarm) return;
+
+    triggeredAlarms.add(todayTriggerKey(alarm));
+    startAlarm(alarm);
+  }, 1000);
 }
 
 elements.scheduleBtn.addEventListener('click', scheduleAlarm);
 elements.answerBtn.addEventListener('click', submitAnswer);
+elements.alarmList.addEventListener('click', (event) => {
+  const target = event.target;
+  if (target instanceof HTMLElement && target.dataset.deleteAlarm) {
+    deleteAlarm(target.dataset.deleteAlarm);
+  }
+});
 elements.mathTab.addEventListener('click', () => challengeSelector.setType('math'));
 elements.programmingTab.addEventListener('click', () => challengeSelector.setType('programming'));
 elements.difficulty.addEventListener('change', () => challengeSelector.updatePreview());
@@ -156,6 +230,9 @@ elements.answer.addEventListener('keydown', (event) => {
 });
 
 challengeSelector.updatePreview();
-scheduler.setDefaultTime();
+const nextMinute = new Date(Date.now() + 60000);
+elements.alarmTime.value = `${String(nextMinute.getHours()).padStart(2, '0')}:${String(nextMinute.getMinutes()).padStart(2, '0')}`;
 checkApi();
 refreshStatus();
+loadAlarms();
+watchSavedAlarms();

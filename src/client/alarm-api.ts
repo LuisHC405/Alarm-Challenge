@@ -1,3 +1,4 @@
+// @ts-nocheck
 export class AlarmApi {
   async request(path, options = {}) {
     const response = await fetch(path, {
@@ -27,6 +28,23 @@ export class AlarmApi {
     return this.request('/alarm/answer', {
       method: 'POST',
       body: JSON.stringify({ answer }),
+    });
+  }
+
+  listAlarms() {
+    return this.request('/alarms');
+  }
+
+  createAlarm(alarm) {
+    return this.request('/alarms', {
+      method: 'POST',
+      body: JSON.stringify(alarm),
+    });
+  }
+
+  deleteAlarm(id) {
+    return this.request(`/alarms/${id}`, {
+      method: 'DELETE',
     });
   }
 }

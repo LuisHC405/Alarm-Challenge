@@ -1,18 +1,28 @@
 # Alarm Challenge
 
-API com frontend para um alarme agendado que so desliga quando o usuario resolve um desafio corretamente.
+API com frontend para criar varios alarmes em horarios diferentes. Cada alarme toca no navegador e so para quando o usuario resolve corretamente um desafio de matematica ou programacao.
 
-O usuario escolhe um horario no frontend e seleciona o tipo de desafio: matematica ou programacao. Quando o horario chega, o frontend chama a API, o backend gera o desafio e o som do alarme toca no navegador ate a resposta estar correta.
+## Como Funciona
 
-## Como Rodar
+1. O usuario cria um alarme pelo frontend informando nome, horario, dificuldade e tipo de desafio.
+2. A API salva esse alarme em um banco JSON local.
+3. Quando o horario chega, o frontend inicia o alarme pela API.
+4. O backend gera o desafio escolhido.
+5. O som do alarme fica tocando em loop.
+6. Se o usuario errar, o volume aumenta para forcar a atencao.
+7. Se o usuario acertar, a API desativa o alarme atual e o som para.
 
-No terminal Bash, instale as dependencias:
+O banco fica em `data/alarms.json` e e criado automaticamente quando necessario.
+
+## Comandos
+
+Instale as dependencias:
 
 ```bash
 npm install
 ```
 
-Inicie o servidor:
+Rode o projeto:
 
 ```bash
 npm start
@@ -24,46 +34,71 @@ Abra no navegador:
 http://localhost:3001
 ```
 
-Para rodar em modo desenvolvimento:
+Modo desenvolvimento:
 
 ```bash
 npm run dev
 ```
 
-Para executar os testes:
+Rodar testes:
 
 ```bash
 npm test
 ```
 
+Gerar os arquivos compilados sem iniciar o servidor:
+
+```bash
+npm run build
+```
+
 ## Configuracao
 
-O projeto usa um arquivo `.env` para configurar a porta:
+Crie um arquivo `.env` se quiser mudar a porta:
 
 ```bash
 PORT=3001
 ```
 
-## Como a API Funciona
+## CRUD de Alarmes
 
-1. O usuario escolhe um horario no frontend.
-2. Quando o horario chega, o frontend inicia o alarme pela API.
-3. A API gera um desafio de matematica ou programacao.
-4. O frontend toca o som do alarme.
-5. O usuario envia uma resposta.
-6. Se a resposta estiver correta, o alarme desliga.
-7. Se a resposta estiver errada, o alarme continua tocando e aumenta o volume.
-8. Se as tentativas acabarem, a API gera uma nova conta e o alarme continua ativo.
-
-## Endpoints Principais
-
-### Ver informacoes da API
+Listar alarmes:
 
 ```bash
-curl http://localhost:3001/api
+curl http://localhost:3001/alarms
 ```
 
-### Iniciar o alarme pela API com matematica
+Criar um alarme:
+
+```bash
+curl -X POST http://localhost:3001/alarms \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Estudar TypeScript","time":"07:30","challengeType":"programming","difficulty":"easy","enabled":true}'
+```
+
+Buscar um alarme:
+
+```bash
+curl http://localhost:3001/alarms/ID_DO_ALARME
+```
+
+Atualizar um alarme:
+
+```bash
+curl -X PUT http://localhost:3001/alarms/ID_DO_ALARME \
+  -H "Content-Type: application/json" \
+  -d '{"time":"08:00","difficulty":"medium"}'
+```
+
+Remover um alarme:
+
+```bash
+curl -X DELETE http://localhost:3001/alarms/ID_DO_ALARME
+```
+
+## Endpoints do Alarme Ativo
+
+Iniciar um desafio manualmente:
 
 ```bash
 curl -X POST http://localhost:3001/alarm/start \
@@ -71,27 +106,19 @@ curl -X POST http://localhost:3001/alarm/start \
   -d '{"challengeType":"math","difficulty":"medium","maxAttempts":5}'
 ```
 
-### Iniciar o alarme pela API com programacao
-
-```bash
-curl -X POST http://localhost:3001/alarm/start \
-  -H "Content-Type: application/json" \
-  -d '{"challengeType":"programming","difficulty":"easy","maxAttempts":5}'
-```
-
-### Ver status do alarme
+Ver status:
 
 ```bash
 curl http://localhost:3001/alarm/status
 ```
 
-### Ver o desafio atual
+Ver desafio atual:
 
 ```bash
 curl http://localhost:3001/alarm/question
 ```
 
-### Enviar resposta
+Enviar resposta:
 
 ```bash
 curl -X POST http://localhost:3001/alarm/answer \
@@ -99,30 +126,10 @@ curl -X POST http://localhost:3001/alarm/answer \
   -d '{"answer":56}'
 ```
 
-Para desafio de programacao, envie o codigo como texto:
-
-```bash
-curl -X POST http://localhost:3001/alarm/answer \
-  -H "Content-Type: application/json" \
-  -d '{"answer":"console.log(\"Hello World\");"}'
-```
-
 ## Tipos de Desafio
 
 - `math`: contas de matematica.
 - `programming`: exercicios curtos de TypeScript.
-
-## Dificuldades de Matematica
-
-- `easy`: soma e subtracao com numeros menores.
-- `medium`: mistura soma, subtracao, multiplicacao e divisao.
-- `hard`: usa numeros maiores e operacoes mais dificeis.
-
-## Dificuldades de Programacao
-
-- `easy`: comandos basicos, como imprimir `Hello World`.
-- `medium`: funcoes simples com parametros e retorno.
-- `hard`: metodos funcionais usando ideias como `filter` e `map`.
 
 ## Estrutura
 
@@ -132,33 +139,21 @@ Alarm Challenge/
 |   `-- assets/
 |       `-- alarm.mp3
 |-- src/
-|   |-- alarmService.js
-|   |-- serverApp.js
+|   |-- alarmService.ts
+|   |-- serverApp.ts
 |   |-- challenges/
-|   |   |-- index.js
-|   |   |-- math.js
-|   |   `-- programming.js
 |   |-- client/
-|   |   |-- alarm-api.js
-|   |   |-- alarm-audio.js
-|   |   |-- alarm-scheduler.js
-|   |   |-- alarm-view.js
-|   |   |-- app.js
-|   |   |-- challenge-details.js
-|   |   |-- challenge-selector.js
-|   |   |-- index.html
-|   |   `-- styles.css
+|   |-- database/
+|   |-- models/
+|   |-- repositories/
 |   |-- routes/
-|   |   |-- alarmRoutes.js
-|   |   `-- apiRoutes.js
 |   `-- utils/
-|       `-- random.js
-|-- server.js
-|-- server.test.js
+|-- server.ts
+|-- server.test.ts
+|-- tsconfig.client.json
+|-- tsconfig.server.json
 |-- package.json
 `-- README.md
 ```
 
-## Observacao
-
-O estado do alarme fica salvo em memoria. Isso e suficiente para estudo e demonstracao, mas em uma versao de producao o ideal seria usar banco de dados e separar alarmes por usuario.
+O codigo fonte fica em `src/`. A pasta `dist/` e a pasta `public/client/` sao geradas pelo build.

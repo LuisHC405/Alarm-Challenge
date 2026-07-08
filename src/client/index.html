@@ -39,7 +39,7 @@
       </div>
 
       <aside class="side-panel">
-        <div class="tabs" role="tablist" aria-label="Tipo de desafio">
+        <div class="tabs" aria-label="Tipo de desafio">
           <button class="tab active" id="mathTab" type="button">Matematica</button>
           <button class="tab" id="programmingTab" type="button">Programacao</button>
         </div>
@@ -47,6 +47,11 @@
         <div class="field">
           <label for="alarmTime">Horario do alarme</label>
           <input id="alarmTime" type="time">
+        </div>
+
+        <div class="field">
+          <label for="alarmName">Nome do alarme</label>
+          <input id="alarmName" type="text" placeholder="Ex: Estudar TypeScript">
         </div>
 
         <div class="field">
@@ -81,6 +86,11 @@
             <span>Erros</span>
             <strong id="statErrors">0</strong>
           </div>
+        </div>
+
+        <div class="preview">
+          <span>Alarmes salvos</span>
+          <div id="alarmList">Nenhum alarme salvo.</div>
         </div>
       </aside>
     </section>
