@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: alarm-challenge-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: luiszin
+      POSTGRES_PASSWORD: salve123
+      POSTGRES_DB: alarm_challenge
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -9,8 +9,8 @@ O usuario pode cadastrar varios alarmes em horarios diferentes. Quando chega o h
 - Node.js
 - Express
 - TypeScript
+- PostgreSQL
 - HTML, CSS e TypeScript no frontend
-- Banco JSON local
 - Node Test Runner para testes
 
 ## Como Rodar
@@ -19,6 +19,18 @@ Instale as dependencias:
 
 ```bash
 npm install
+```
+
+Crie seu arquivo `.env` usando o exemplo:
+
+```bash
+cp .env.example .env
+```
+
+Suba o PostgreSQL com Docker:
+
+```bash
+docker compose up -d
 ```
 
 Inicie o servidor:
@@ -33,13 +45,23 @@ Abra no navegador:
 http://localhost:3001
 ```
 
-O projeto usa o arquivo `.env` para definir a porta:
+## Variaveis de Ambiente
+
+Exemplo:
 
 ```bash
 PORT=3001
+MAX_ATTEMPTS=5
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/alarm_challenge
+PGSSL=false
 ```
 
-Se o `.env` nao existir, o servidor usa a porta padrao `3000`.
+Explicando do zero:
+
+- `PORT`: porta onde a API vai rodar.
+- `MAX_ATTEMPTS`: quantidade padrao de tentativas por desafio.
+- `DATABASE_URL`: endereco de conexao com o PostgreSQL.
+- `PGSSL`: use `true` apenas se o PostgreSQL exigir SSL, comum em bancos hospedados.
 
 ## Comandos Uteis
 
@@ -61,10 +83,36 @@ Executar os testes:
 npm test
 ```
 
+Parar o PostgreSQL do Docker:
+
+```bash
+docker compose down
+```
+
+## Postman
+
+O projeto possui uma collection pronta para testar a API:
+
+```text
+postman/Alarm Challenge.postman_collection.json
+```
+
+Como usar:
+
+1. Abra o Postman.
+2. Clique em `Import`.
+3. Selecione o arquivo `postman/Alarm Challenge.postman_collection.json`.
+4. Rode primeiro a requisicao `Criar alarme`.
+
+A collection usa estas variaveis:
+
+- `baseUrl`: endereco da API, por padrao `http://localhost:3001`.
+- `alarmId`: preenchido automaticamente quando a requisicao `Criar alarme` retorna sucesso.
+
 ## Como Funciona
 
 1. O usuario cria um alarme pelo frontend.
-2. A API salva o alarme no banco JSON local.
+2. A API salva o alarme no PostgreSQL.
 3. O frontend verifica os alarmes cadastrados.
 4. Quando o horario chega, o frontend inicia o alarme pela API.
 5. A API gera um desafio de matematica ou programacao.
@@ -73,13 +121,7 @@ npm test
 8. Se acertar, o alarme para.
 9. Se errar, o alarme continua tocando e o volume aumenta.
 
-O banco local fica em:
-
-```text
-data/alarms.json
-```
-
-Esse arquivo e criado automaticamente quando necessario.
+A tabela `alarms` e criada automaticamente pela API quando necessario.
 
 ## Endpoints da API
 
@@ -163,17 +205,6 @@ curl -X POST http://localhost:3001/alarm/answer \
   -d '{"answer":"console.log(\"Hello World\");"}'
 ```
 
-## Tipos de Desafio
-
-- `math`: contas de matematica.
-- `programming`: exercicios curtos de TypeScript.
-
-## Dificuldades
-
-- `easy`: desafios simples.
-- `medium`: desafios intermediarios.
-- `hard`: desafios mais complexos.
-
 ## Estrutura do Projeto
 
 ```text
@@ -186,11 +217,13 @@ Alarm Challenge/
 |   |-- serverApp.ts
 |   |-- challenges/
 |   |-- client/
+|   |-- controllers/
 |   |-- database/
 |   |-- models/
 |   |-- repositories/
 |   |-- routes/
 |   `-- utils/
+|-- docker-compose.yml
 |-- server.ts
 |-- server.test.ts
 |-- tsconfig.json
@@ -205,5 +238,5 @@ Alarm Challenge/
 - O codigo fonte esta em TypeScript.
 - O build gera a pasta `dist/`.
 - O frontend compilado e copiado para `public/client/`.
-- Os alarmes salvos localmente ficam em `data/alarms.json`.
-- `dist/`, `public/client/` e `data/` nao precisam ser enviados para o GitHub.
+- O banco usado pela aplicacao e PostgreSQL.
+- Os testes usam um repositório em memoria para validar a API sem depender de um banco externo.

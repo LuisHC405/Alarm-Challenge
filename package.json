@@ -1,7 +1,7 @@
 {
   "name": "alarm-challenge",
   "version": "2.0.0",
-  "description": "API e frontend de alarme que exige resolver uma conta de matematica para desligar",
+  "description": "API e frontend de alarme com desafios e banco PostgreSQL",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc -p tsconfig.server.json && tsc -p tsconfig.client.json && node -e \"const fs=require('fs');fs.mkdirSync('public/client',{recursive:true});fs.copyFileSync('src/client/index.html','public/client/index.html');fs.copyFileSync('src/client/styles.css','public/client/styles.css');\"",
@@ -20,12 +20,14 @@
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "pg": "^8.22.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^20.14.10",
+    "@types/pg": "^8.20.0",
     "nodemon": "^2.0.20",
     "typescript": "^5.5.3"
   }

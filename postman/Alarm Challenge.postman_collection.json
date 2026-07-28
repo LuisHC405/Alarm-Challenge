@@ -1,0 +1,246 @@
+{
+  "info": {
+    "name": "Alarm Challenge",
+    "description": "Collection para testar a API Alarm Challenge no Postman.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "API",
+      "item": [
+        {
+          "name": "Informacoes da API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api",
+              "host": ["{{baseUrl}}"],
+              "path": ["api"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CRUD de Alarmes",
+      "item": [
+        {
+          "name": "Listar alarmes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/alarms",
+              "host": ["{{baseUrl}}"],
+              "path": ["alarms"]
+            }
+          }
+        },
+        {
+          "name": "Criar alarme",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.alarm && response.alarm.id) {",
+                  "  pm.collectionVariables.set('alarmId', response.alarm.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Estudar TypeScript\",\n  \"time\": \"07:30\",\n  \"challengeType\": \"programming\",\n  \"difficulty\": \"easy\",\n  \"enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/alarms",
+              "host": ["{{baseUrl}}"],
+              "path": ["alarms"]
+            }
+          }
+        },
+        {
+          "name": "Buscar alarme por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/alarms/{{alarmId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["alarms", "{{alarmId}}"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar alarme",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Estudar TypeScript Atualizado\",\n  \"time\": \"08:00\",\n  \"difficulty\": \"medium\",\n  \"enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/alarms/{{alarmId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["alarms", "{{alarmId}}"]
+            }
+          }
+        },
+        {
+          "name": "Remover alarme",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/alarms/{{alarmId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["alarms", "{{alarmId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alarme Ativo",
+      "item": [
+        {
+          "name": "Iniciar alarme com matematica",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"challengeType\": \"math\",\n  \"difficulty\": \"medium\",\n  \"maxAttempts\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/alarm/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["alarm", "start"]
+            }
+          }
+        },
+        {
+          "name": "Iniciar alarme com programacao",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"challengeType\": \"programming\",\n  \"difficulty\": \"easy\",\n  \"maxAttempts\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/alarm/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["alarm", "start"]
+            }
+          }
+        },
+        {
+          "name": "Ver status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/alarm/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["alarm", "status"]
+            }
+          }
+        },
+        {
+          "name": "Ver desafio atual",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/alarm/question",
+              "host": ["{{baseUrl}}"],
+              "path": ["alarm", "question"]
+            }
+          }
+        },
+        {
+          "name": "Enviar resposta matematica",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answer\": 56\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/alarm/answer",
+              "host": ["{{baseUrl}}"],
+              "path": ["alarm", "answer"]
+            }
+          }
+        },
+        {
+          "name": "Enviar resposta programacao",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answer\": \"console.log(\\\"Hello World\\\");\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/alarm/answer",
+              "host": ["{{baseUrl}}"],
+              "path": ["alarm", "answer"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001"
+    },
+    {
+      "key": "alarmId",
+      "value": ""
+    }
+  ]
+}

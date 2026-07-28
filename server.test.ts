@@ -1,11 +1,14 @@
 const assert = require('node:assert/strict');
+const { randomUUID } = require('node:crypto');
 const http = require('node:http');
 const test = require('node:test');
-const { app, alarmState, stopAlarm } = require('./server');
+const { createApp } = require('./src/serverApp');
 const { generateMathQuestion } = require('./src/challenges/math');
 const { generateProgrammingChallenge, normalizeCodeAnswer } = require('./src/challenges/programming');
+const { normalizeChallengeType, normalizeDifficulty, normalizeTime } = require('./src/repositories/alarmRepository');
 
 import type { IncomingMessage } from 'node:http';
+import type { AlarmInput, AlarmRecord } from './src/models/alarm';
 
 type TestServer = {
   server: import('node:http').Server;
@@ -16,6 +19,67 @@ type TestResponse = {
   status: number | undefined;
   body: any;
 };
+
+class MemoryAlarmRepository {
+  private alarms: AlarmRecord[] = [];
+
+  async list(): Promise<AlarmRecord[]> {
+    return this.alarms;
+  }
+
+  async findById(id: string): Promise<AlarmRecord | null> {
+    return this.alarms.find((alarm) => alarm.id === id) || null;
+  }
+
+  async create(input: AlarmInput): Promise<AlarmRecord> {
+    const now = new Date().toISOString();
+    const alarm: AlarmRecord = {
+      id: randomUUID(),
+      name: input.name?.trim() || 'Alarme',
+      time: normalizeTime(input.time),
+      challengeType: normalizeChallengeType(input.challengeType),
+      difficulty: normalizeDifficulty(input.difficulty),
+      enabled: input.enabled ?? true,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.alarms.push(alarm);
+    return alarm;
+  }
+
+  async update(id: string, input: Partial<AlarmInput>): Promise<AlarmRecord | null> {
+    const index = this.alarms.findIndex((alarm) => alarm.id === id);
+    if (index === -1) return null;
+
+    const current = this.alarms[index];
+    const updated: AlarmRecord = {
+      ...current,
+      name: input.name === undefined ? current.name : input.name.trim() || current.name,
+      time: input.time === undefined ? current.time : normalizeTime(input.time),
+      challengeType: input.challengeType === undefined ? current.challengeType : normalizeChallengeType(input.challengeType),
+      difficulty: input.difficulty === undefined ? current.difficulty : normalizeDifficulty(input.difficulty),
+      enabled: input.enabled === undefined ? current.enabled : Boolean(input.enabled),
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.alarms[index] = updated;
+    return updated;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const originalLength = this.alarms.length;
+    this.alarms = this.alarms.filter((alarm) => alarm.id !== id);
+    return this.alarms.length !== originalLength;
+  }
+}
+
+const { app, alarm } = createApp({
+  rootDir: process.cwd(),
+  defaultMaxAttempts: 5,
+  alarmRepository: new MemoryAlarmRepository(),
+});
+const { alarmState, stopAlarm } = alarm;
 
 function listen(): Promise<TestServer> {
   const server = http.createServer(app);

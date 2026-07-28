@@ -2,8 +2,7 @@ import path from 'node:path';
 import cors from 'cors';
 import express, { type Request, type Response } from 'express';
 import { createAlarmService } from './alarmService';
-import { JsonDatabase } from './database/jsonDatabase';
-import { AlarmRepository } from './repositories/alarmRepository';
+import type { AlarmRepository } from './repositories/alarmRepository';
 import { createAlarmRouter } from './routes/alarmRoutes';
 import { createAlarmsCrudRouter } from './routes/alarmsCrudRoutes';
 import { createApiRouter } from './routes/apiRoutes';
@@ -11,12 +10,12 @@ import { createApiRouter } from './routes/apiRoutes';
 type CreateAppOptions = {
   rootDir: string;
   defaultMaxAttempts: number;
+  alarmRepository: AlarmRepository;
 };
 
-export function createApp({ rootDir, defaultMaxAttempts }: CreateAppOptions) {
+export function createApp({ rootDir, defaultMaxAttempts, alarmRepository }: CreateAppOptions) {
   const app = express();
   const alarm = createAlarmService(defaultMaxAttempts);
-  const alarmRepository = new AlarmRepository(new JsonDatabase(path.join(rootDir, 'data', 'alarms.json'), { alarms: [] }));
   const clientDir = path.join(rootDir, 'public', 'client');
   const publicDir = path.join(rootDir, 'public');
 
