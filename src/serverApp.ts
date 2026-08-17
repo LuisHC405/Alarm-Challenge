@@ -2,10 +2,10 @@ import path from 'node:path';
 import cors from 'cors';
 import express, { type Request, type Response } from 'express';
 import { createAlarmService } from './alarmService';
-import type { AlarmRepository } from './repositories/alarmRepository';
-import { createAlarmRouter } from './routes/alarmRoutes';
-import { createAlarmsCrudRouter } from './routes/alarmsCrudRoutes';
-import { createApiRouter } from './routes/apiRoutes';
+import type { AlarmRepository } from './modules/alarms/infra/orm/repositories/alarm.repository';
+import { createAlarmsRouter } from './modules/alarms/infra/http/routers/alarms.router';
+import { createChallengeRouter } from './modules/challenges/infra/http/routers/challenge.router';
+import { createApiRouter } from './shared/infra/http/routes/api.router';
 
 type CreateAppOptions = {
   rootDir: string;
@@ -29,8 +29,8 @@ export function createApp({ rootDir, defaultMaxAttempts, alarmRepository }: Crea
   });
 
   app.use('/api', createApiRouter());
-  app.use('/alarm', createAlarmRouter(alarm));
-  app.use('/alarms', createAlarmsCrudRouter(alarmRepository));
+  app.use('/alarm', createChallengeRouter(alarm));
+  app.use('/alarms', createAlarmsRouter(alarmRepository));
 
   app.use((req: Request, res: Response) => {
     res.status(404).json({

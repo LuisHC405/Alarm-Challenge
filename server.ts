@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { createPostgresPool } from './src/database/postgres';
-import { PostgresAlarmRepository } from './src/repositories/postgresAlarmRepository';
+import { PostgresAlarmRepository } from './src/modules/alarms/infra/orm/repositories/postgres-alarm.repository';
 import { createApp } from './src/serverApp';
 
 const PORT = Number(process.env.PORT) || 3000;

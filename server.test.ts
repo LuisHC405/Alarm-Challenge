@@ -5,10 +5,10 @@ const test = require('node:test');
 const { createApp } = require('./src/serverApp');
 const { generateMathQuestion } = require('./src/challenges/math');
 const { generateProgrammingChallenge, normalizeCodeAnswer } = require('./src/challenges/programming');
-const { normalizeChallengeType, normalizeDifficulty, normalizeTime } = require('./src/repositories/alarmRepository');
+const { normalizeChallengeType, normalizeDifficulty, normalizeTime } = require('./src/modules/alarms/infra/orm/repositories/alarm.repository');
 
 import type { IncomingMessage } from 'node:http';
-import type { AlarmInput, AlarmRecord } from './src/models/alarm';
+import type { AlarmInput, AlarmRecord } from './src/modules/alarms/domain/alarm';
 
 type TestServer = {
   server: import('node:http').Server;

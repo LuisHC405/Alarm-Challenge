@@ -6,6 +6,26 @@ O usuario pode cadastrar varios alarmes em horarios diferentes. Quando chega o h
 
 O frontend possui tres telas principais: criacao/listagem de alarmes, desafio de matematica e desafio de programacao.
 
+## Organizacao do Backend
+
+O projeto usa uma organizacao por modulo, inspirada na referencia do EventFlow. Assim, tudo que pertence ao alarme fica junto e o codigo compartilhado nao se mistura com a regra de negocio:
+
+```text
+src/
+  modules/
+    alarms/
+      domain/                 # Tipos do alarme
+      services/               # Regras do CRUD
+      infra/http/             # Controller e rotas
+      infra/orm/              # Repositorio PostgreSQL
+    challenges/               # Rotas do desafio que libera o alarme
+  shared/infra/http/          # Rotas compartilhadas, como /api
+  database/                   # Conexao com PostgreSQL
+  client/                     # Frontend
+```
+
+O caminho de uma requisicao de alarme e: `rota -> controller -> service -> repository -> PostgreSQL`.
+
 ## Como Rodar
 
 Instale as dependencias:
@@ -50,7 +70,6 @@ MAX_ATTEMPTS=5
 DATABASE_URL=postgresql://luiszin:salve123@localhost:5432/alarm_challenge
 PGSSL=false
 ```
-
 
 
 ## Comandos Uteis

@@ -1,6 +1,6 @@
 import { generateChallenge, isCorrectChallengeAnswer, pickChallengeType } from './challenges';
 import { pickDifficulty } from './challenges/math';
-import type { ChallengeType, Difficulty } from './models/alarm';
+import type { ChallengeType, Difficulty } from './modules/alarms/domain/alarm';
 
 type AlarmState = {
   isActive: boolean;

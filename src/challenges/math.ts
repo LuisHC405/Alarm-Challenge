@@ -1,5 +1,5 @@
 import { randomInt } from '../utils/random';
-import type { Difficulty } from '../models/alarm';
+import type { Difficulty } from '../modules/alarms/domain/alarm';
 
 type MathOperator = '+' | '-' | '*' | '/';
 

@@ -1,6 +1,6 @@
 import { generateMathQuestion, isCorrectMathAnswer, type MathChallenge } from './math';
 import { generateProgrammingChallenge, isCorrectProgrammingAnswer, type ProgrammingChallenge } from './programming';
-import type { ChallengeType } from '../models/alarm';
+import type { ChallengeType } from '../modules/alarms/domain/alarm';
 
 export type Challenge = MathChallenge | ProgrammingChallenge;
 
