@@ -51,6 +51,13 @@ export class AlarmApi {
     });
   }
 
+  updateAlarm(id, alarm) {
+    return this.requestRequired(`/alarms/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(alarm),
+    });
+  }
+
   deleteAlarm(id) {
     return this.requestRequired(`/alarms/${id}`, {
       method: 'DELETE',

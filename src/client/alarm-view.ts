@@ -35,10 +35,10 @@ export class AlarmView {
     this.elements.statAttempts.textContent = `${data.attemptsUsed || 0}/${data.maxAttempts || 5}`;
 
     if (active) {
-      this.elements.answer.placeholder = challengeType === 'programming' ? 'Digite seu codigo TypeScript aqui' : 'Digite o resultado';
+      this.elements.answer.placeholder = challengeType === 'programming' ? 'Digite seu código TypeScript aqui' : 'Digite o resultado';
       this.elements.answer.focus();
     } else {
-      this.elements.answer.placeholder = fallbackChallengeType === 'programming' ? 'Codigo TypeScript' : 'Resposta';
+      this.elements.answer.placeholder = fallbackChallengeType === 'programming' ? 'Código TypeScript' : 'Resposta';
     }
 
     return active;

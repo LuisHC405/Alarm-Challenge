@@ -5,7 +5,7 @@ const test = require('node:test');
 const { createApp } = require('./src/serverApp');
 const { generateMathQuestion } = require('./src/challenges/math');
 const { generateProgrammingChallenge, normalizeCodeAnswer } = require('./src/challenges/programming');
-const { normalizeChallengeType, normalizeDifficulty, normalizeTime } = require('./src/modules/alarms/infra/orm/repositories/alarm.repository');
+const { normalizeChallengeType, normalizeDifficulty, normalizeScheduledDate, normalizeTime, normalizeWeekdays } = require('./src/modules/alarms/infra/orm/repositories/alarm.repository');
 
 import type { IncomingMessage } from 'node:http';
 import type { AlarmInput, AlarmRecord } from './src/modules/alarms/domain/alarm';
@@ -40,6 +40,8 @@ class MemoryAlarmRepository {
       challengeType: normalizeChallengeType(input.challengeType),
       difficulty: normalizeDifficulty(input.difficulty),
       enabled: input.enabled ?? true,
+      weekdays: normalizeWeekdays(input.weekdays),
+      scheduledDate: normalizeScheduledDate(input.scheduledDate),
       createdAt: now,
       updatedAt: now,
     };
@@ -60,6 +62,8 @@ class MemoryAlarmRepository {
       challengeType: input.challengeType === undefined ? current.challengeType : normalizeChallengeType(input.challengeType),
       difficulty: input.difficulty === undefined ? current.difficulty : normalizeDifficulty(input.difficulty),
       enabled: input.enabled === undefined ? current.enabled : Boolean(input.enabled),
+      weekdays: input.weekdays === undefined ? current.weekdays : normalizeWeekdays(input.weekdays),
+      scheduledDate: input.scheduledDate === undefined ? current.scheduledDate : normalizeScheduledDate(input.scheduledDate),
       updatedAt: new Date().toISOString(),
     };
 
@@ -234,12 +238,16 @@ test('alarm CRUD creates, lists, updates and deletes saved alarms', async () => 
         time: '07:30',
         challengeType: 'programming',
         difficulty: 'hard',
+        weekdays: ['mon', 'tue', 'wed', 'thu', 'fri'],
+        scheduledDate: '2030-01-02',
       },
     });
 
     assert.equal(created.status, 201);
     assert.equal(created.body.alarm.name, 'Teste CRUD');
     assert.equal(created.body.alarm.time, '07:30');
+    assert.deepEqual(created.body.alarm.weekdays, ['mon', 'tue', 'wed', 'thu', 'fri']);
+    assert.equal(created.body.alarm.scheduledDate, '2030-01-02');
 
     const listed = await request(baseUrl, '/alarms');
     assert.equal(listed.status, 200);

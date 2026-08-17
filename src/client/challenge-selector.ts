@@ -19,7 +19,7 @@ export class ChallengeSelector {
     this.type = type;
     this.mathTab.classList.toggle('active', type === 'math');
     this.programmingTab.classList.toggle('active', type === 'programming');
-    this.answer.placeholder = type === 'programming' ? 'Codigo TypeScript' : 'Resposta';
+    this.answer.placeholder = type === 'programming' ? 'Código TypeScript' : 'Resposta';
     this.updatePreview();
   }
 
@@ -32,7 +32,7 @@ export class ChallengeSelector {
   updatePreview() {
     const detail = challengeDetails[this.type][this.difficulty];
     this.preview.innerHTML = `
-      <span>Preview da dificuldade</span>
+      <span>Prévia da dificuldade</span>
       <strong>${detail.label}</strong>: ${detail.text}
       <em>${detail.examples}</em>
     `;

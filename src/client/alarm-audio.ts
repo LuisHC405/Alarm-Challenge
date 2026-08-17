@@ -123,4 +123,14 @@ export class AlarmAudio {
     }
     return this.volumePercent();
   }
+
+  setMaxVolume() {
+    this.volume = this.maxVolume;
+    if (this.gain) {
+      this.gain.gain.value = this.volume;
+    } else {
+      this.start();
+    }
+    return this.volumePercent();
+  }
 }
