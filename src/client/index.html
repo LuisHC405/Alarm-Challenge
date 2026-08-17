@@ -9,90 +9,60 @@
 </head>
 <body>
   <main id="app">
-    <section class="topbar">
-      <div class="brand">
-        <h1>Alarm Challenge</h1>
-        <p class="subtitle">Alarme ativo, desafio na tela, silencio so depois do acerto.</p>
+    <section class="screen active" id="createScreen" aria-label="Criar e listar alarmes">
+      <div class="wakeboard">
+        <div class="wake-copy">
+          <p class="section-kicker">Proximo despertar</p>
+          <div class="live-clock" id="currentClock">--:--</div>
+          <p class="live-date" id="currentDate">Carregando data...</p>
+          <p class="wake-note">Programe o momento. O desafio cuida do resto.</p>
+        </div>
+        <div class="wake-rings" aria-hidden="true"><span></span><span></span><span></span><div class="wake-center">!</div></div>
       </div>
-      <div class="api-pill" id="apiStatus">Verificando API</div>
+
+      <div class="workspace">
+        <form class="alarm-form" id="alarmForm">
+          <div class="form-heading"><div><p class="section-kicker">Novo alarme</p><h1>Quando voce quer acordar?</h1></div><span class="form-step">01</span></div>
+          <div class="time-field field"><label for="alarmTime">Horario</label><input id="alarmTime" type="time" required></div>
+          <div class="field"><label for="alarmName">Dê um motivo para levantar</label><input id="alarmName" type="text" placeholder="Ex: Aula de TypeScript"></div>
+          <fieldset class="field challenge-choice">
+            <legend>Como voce vai desligar?</legend>
+            <div class="tabs" aria-label="Tipo de desafio">
+              <button class="tab active" id="mathTab" type="button"><span class="tab-symbol" aria-hidden="true">+</span><span><strong>Matematica</strong><small>Resolva a conta</small></span></button>
+              <button class="tab" id="programmingTab" type="button"><span class="tab-symbol code-symbol" aria-hidden="true">&lt;/&gt;</span><span><strong>Programacao</strong><small>Escreva uma solucao</small></span></button>
+            </div>
+          </fieldset>
+          <div class="difficulty-row">
+            <div class="field"><label for="difficulty">Nivel do desafio</label><select id="difficulty"><option value="easy">Facil</option><option value="medium" selected>Medio</option><option value="hard">Dificil</option></select></div>
+            <div class="preview" id="difficultyPreview"></div>
+          </div>
+          <button class="primary" id="scheduleBtn" type="submit">Criar alarme <span aria-hidden="true">&#8594;</span></button>
+        </form>
+
+        <section class="alarm-panel" aria-label="Alarmes salvos">
+          <div class="panel-title"><div><p class="section-kicker">Sua rotina</p><h2>Alarmes agendados</h2></div><strong id="alarmCount">0</strong></div>
+          <div class="message" id="message">Crie seu primeiro alarme.</div>
+          <div id="alarmList" class="alarm-list empty">Nenhum alarme programado.</div>
+        </section>
+      </div>
     </section>
 
-    <section class="layout">
-      <div class="alarm-panel">
-        <div class="status" id="statusLabel">
-          <span class="dot"></span>
-          <span>Alarme desligado</span>
-        </div>
+    <section class="screen challenge-screen" id="mathChallengeScreen" aria-label="Desafio de matematica">
+      <div class="challenge-top"><div><p class="section-kicker danger-kicker">Hora de levantar</p><h1>Resolva para silenciar.</h1></div><div class="status" id="mathStatusLabel"><span class="dot"></span><span>Alarme tocando</span></div></div>
+      <p class="challenge-guide">Uma resposta certa desliga o alarme. Sem atalhos.</p>
+      <div class="question math-question" id="mathQuestion">--</div>
+      <div class="answer-row"><input id="mathAnswer" type="number" inputmode="numeric" placeholder="Digite o resultado" disabled><button class="primary" id="mathAnswerBtn" type="button" disabled>Confirmar</button></div>
+      <div class="message" id="mathMessage">Resolva a conta para desligar o alarme.</div>
+      <div class="stats"><div class="stat"><span>Status</span><strong id="mathStatStatus">On</strong></div><div class="stat"><span>Tentativas</span><strong id="mathStatAttempts">0/5</strong></div><div class="stat"><span>Acertos</span><strong id="mathStatWins">0</strong></div><div class="stat"><span>Erros</span><strong id="mathStatErrors">0</strong></div></div>
+    </section>
 
-        <div class="question" id="question">--</div>
-
-        <div class="answer-row">
-          <textarea id="answer" placeholder="Resposta" disabled></textarea>
-          <button class="primary" id="answerBtn" disabled>Responder</button>
-        </div>
-
-        <div class="message" id="message">Escolha um horario e agende o alarme.</div>
-
-        <div class="controls">
-          <button class="primary" id="scheduleBtn">Agendar alarme</button>
-        </div>
-      </div>
-
-      <aside class="side-panel">
-        <div class="tabs" aria-label="Tipo de desafio">
-          <button class="tab active" id="mathTab" type="button">Matematica</button>
-          <button class="tab" id="programmingTab" type="button">Programacao</button>
-        </div>
-
-        <div class="field">
-          <label for="alarmTime">Horario do alarme</label>
-          <input id="alarmTime" type="time">
-        </div>
-
-        <div class="field">
-          <label for="alarmName">Nome do alarme</label>
-          <input id="alarmName" type="text" placeholder="Ex: Estudar TypeScript">
-        </div>
-
-        <div class="field">
-          <label for="difficulty">Dificuldade</label>
-          <select id="difficulty">
-            <option value="easy">Facil</option>
-            <option value="medium" selected>Medio</option>
-            <option value="hard">Dificil</option>
-          </select>
-        </div>
-
-        <div class="preview" id="difficultyPreview">
-          <span>Preview da dificuldade</span>
-          <strong>Medio</strong>: operacoes variadas com numeros moderados.
-          <em>Exemplos: 8 x 7, 48 / 6.</em>
-        </div>
-
-        <div class="stats">
-          <div class="stat">
-            <span>Status</span>
-            <strong id="statStatus">Off</strong>
-          </div>
-          <div class="stat">
-            <span>Tentativas</span>
-            <strong id="statAttempts">0/5</strong>
-          </div>
-          <div class="stat">
-            <span>Acertos</span>
-            <strong id="statWins">0</strong>
-          </div>
-          <div class="stat">
-            <span>Erros</span>
-            <strong id="statErrors">0</strong>
-          </div>
-        </div>
-
-        <div class="preview">
-          <span>Alarmes salvos</span>
-          <div id="alarmList">Nenhum alarme salvo.</div>
-        </div>
-      </aside>
+    <section class="screen challenge-screen programming-mode" id="programmingChallengeScreen" aria-label="Desafio de programacao">
+      <div class="challenge-top"><div><p class="section-kicker danger-kicker">Hora de codar</p><h1>Escreva para silenciar.</h1></div><div class="status" id="programmingStatusLabel"><span class="dot"></span><span>Alarme tocando</span></div></div>
+      <p class="challenge-guide">Envie uma solucao valida para finalmente voltar ao silencio.</p>
+      <div class="question programming-question" id="programmingQuestion">--</div>
+      <div class="answer-row programming-answer"><textarea id="programmingAnswer" placeholder="Digite seu codigo TypeScript aqui" disabled></textarea><button class="primary" id="programmingAnswerBtn" type="button" disabled>Enviar codigo</button></div>
+      <div class="message" id="programmingMessage">Resolva o exercicio para desligar o alarme.</div>
+      <div class="stats"><div class="stat"><span>Status</span><strong id="programmingStatStatus">On</strong></div><div class="stat"><span>Tentativas</span><strong id="programmingStatAttempts">0/5</strong></div><div class="stat"><span>Acertos</span><strong id="programmingStatWins">0</strong></div><div class="stat"><span>Erros</span><strong id="programmingStatErrors">0</strong></div></div>
     </section>
   </main>
 </body>

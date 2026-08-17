@@ -4,14 +4,7 @@ Alarm Challenge e uma API com frontend para criar alarmes que so param quando o 
 
 O usuario pode cadastrar varios alarmes em horarios diferentes. Quando chega o horario de um alarme ativo, o navegador toca o som do alarme em loop e mostra um desafio de matematica ou programacao. Se a resposta estiver errada, o alarme continua tocando e o volume aumenta. Se a resposta estiver correta, o alarme para.
 
-## Tecnologias
-
-- Node.js
-- Express
-- TypeScript
-- PostgreSQL
-- HTML, CSS e TypeScript no frontend
-- Node Test Runner para testes
+O frontend possui tres telas principais: criacao/listagem de alarmes, desafio de matematica e desafio de programacao.
 
 ## Como Rodar
 
@@ -27,11 +20,13 @@ Crie seu arquivo `.env` usando o exemplo:
 cp .env.example .env
 ```
 
-Suba o PostgreSQL com Docker:
+Suba o PostgreSQL com Docker, se tiver Docker instalado:
 
 ```bash
 docker compose up -d
 ```
+
+Se nao tiver Docker, instale o PostgreSQL localmente e crie um banco chamado `alarm_challenge` com usuario `luiszin` e senha `salve123`, ou ajuste a `DATABASE_URL` para os dados do seu PostgreSQL.
 
 Inicie o servidor:
 
@@ -52,16 +47,11 @@ Exemplo:
 ```bash
 PORT=3001
 MAX_ATTEMPTS=5
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/alarm_challenge
+DATABASE_URL=postgresql://luiszin:salve123@localhost:5432/alarm_challenge
 PGSSL=false
 ```
 
-Explicando do zero:
 
-- `PORT`: porta onde a API vai rodar.
-- `MAX_ATTEMPTS`: quantidade padrao de tentativas por desafio.
-- `DATABASE_URL`: endereco de conexao com o PostgreSQL.
-- `PGSSL`: use `true` apenas se o PostgreSQL exigir SSL, comum em bancos hospedados.
 
 ## Comandos Uteis
 
@@ -232,11 +222,3 @@ Alarm Challenge/
 |-- package.json
 `-- README.md
 ```
-
-## Observacoes
-
-- O codigo fonte esta em TypeScript.
-- O build gera a pasta `dist/`.
-- O frontend compilado e copiado para `public/client/`.
-- O banco usado pela aplicacao e PostgreSQL.
-- Os testes usam um repositório em memoria para validar a API sem depender de um banco externo.
