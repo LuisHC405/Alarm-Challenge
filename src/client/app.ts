@@ -150,7 +150,7 @@ async function loadAlarms() {
     savedAlarms = data.alarms || [];
     renderAlarmList();
   } catch (error) {
-    setMessage(elements.message, 'Nao foi possivel carregar os alarmes salvos.', 'error');
+    setMessage(elements.message, error instanceof Error ? error.message : 'Nao foi possivel carregar os alarmes salvos.', 'error');
   }
 }
 
@@ -195,7 +195,7 @@ async function scheduleAlarm(event) {
     await loadAlarms();
     setMessage(elements.message, 'Alarme salvo no banco de dados.', 'success');
   } catch (error) {
-    setMessage(elements.message, 'Nao foi possivel salvar o alarme.', 'error');
+    setMessage(elements.message, error instanceof Error ? error.message : 'Nao foi possivel salvar o alarme.', 'error');
   }
 }
 
@@ -206,7 +206,7 @@ async function deleteAlarm(id) {
     await loadAlarms();
     setMessage(elements.message, 'Alarme removido.', 'success');
   } catch (error) {
-    setMessage(elements.message, 'Nao foi possivel remover o alarme.', 'error');
+    setMessage(elements.message, error instanceof Error ? error.message : 'Nao foi possivel remover o alarme.', 'error');
   }
 }
 
