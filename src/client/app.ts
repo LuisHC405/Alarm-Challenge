@@ -390,7 +390,6 @@ function renderAlarmList() {
       <div>
         <strong>${alarm.time}</strong>
         <small>${alarm.scheduledDate ? `Data: ${new Date(`${alarm.scheduledDate}T00:00:00`).toLocaleDateString('pt-BR')}` : weekdaySummary(alarm.weekdays || allWeekdays)}${alarm.name ? ` · ${alarm.name}` : ''}</small>
-        <small>${alarm.name}</small>
       </div>
       <div>
         <label class="alarm-toggle" aria-label="${alarm.enabled ? 'Desativar' : 'Ativar'} ${alarm.name}">
