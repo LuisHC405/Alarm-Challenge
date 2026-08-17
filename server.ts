@@ -13,7 +13,7 @@ const { app, alarm } = createApp({
 });
 
 if (require.main === module) {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Alarm Challenge rodando em http://localhost:${PORT}`);
   });
 }
