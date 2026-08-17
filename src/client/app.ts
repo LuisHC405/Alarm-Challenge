@@ -19,6 +19,7 @@ const elements = {
   createModal: document.getElementById('createModal'),
   openCreateBtn: document.getElementById('openCreateBtn'),
   closeCreateBtn: document.getElementById('closeCreateBtn'),
+  createAlarmTitle: document.getElementById('createAlarmTitle'),
   weekdayList: document.getElementById('weekdayList'),
   scheduleBtn: document.getElementById('scheduleBtn'),
   mathTab: document.getElementById('mathTab'),
@@ -64,6 +65,7 @@ let savedAlarms = [];
 let activeChallengeType = 'math';
 const triggeredAlarms = new Set();
 let answerTimerId = null;
+let editingAlarmId = null;
 const allWeekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const workdays = ['mon', 'tue', 'wed', 'thu', 'fri'];
 const weekendDays = ['sat', 'sun'];
@@ -80,6 +82,35 @@ function setCreateModal(open) {
   if (open) {
     elements.alarmTime.focus();
   }
+}
+
+function prepareNewAlarm() {
+  editingAlarmId = null;
+  elements.createAlarmTitle.textContent = 'Adicionar horário';
+  elements.scheduleBtn.textContent = 'Salvar alarme';
+  elements.alarmName.value = '';
+  elements.alarmDate.value = '';
+  setWeekdays(allWeekdays);
+  challengeSelector.setType('math');
+  elements.difficulty.value = 'medium';
+  challengeSelector.updatePreview();
+}
+
+function editAlarm(id) {
+  const alarm = savedAlarms.find((item) => item.id === id);
+  if (!alarm) return;
+
+  editingAlarmId = id;
+  elements.createAlarmTitle.textContent = 'Editar alarme';
+  elements.scheduleBtn.textContent = 'Salvar alterações';
+  elements.alarmTime.value = alarm.time;
+  elements.alarmName.value = alarm.name;
+  elements.alarmDate.value = alarm.scheduledDate || '';
+  elements.difficulty.value = alarm.difficulty;
+  setWeekdays(alarm.weekdays || allWeekdays);
+  challengeSelector.setType(alarm.challengeType);
+  challengeSelector.updatePreview();
+  setCreateModal(true);
 }
 
 function setMessage(element, text, type = 'info') {
@@ -256,7 +287,7 @@ async function scheduleAlarm(event) {
   }
 
   try {
-    await api.createAlarm({
+    const alarmInput = {
       name: elements.alarmName.value || 'Alarme',
       time: elements.alarmTime.value,
       difficulty: challengeSelector.difficulty,
@@ -264,13 +295,17 @@ async function scheduleAlarm(event) {
       weekdays: selectedWeekdays(),
       scheduledDate: elements.alarmDate.value || null,
       enabled: true,
-    });
+    };
+    if (editingAlarmId) {
+      await api.updateAlarm(editingAlarmId, alarmInput);
+    } else {
+      await api.createAlarm(alarmInput);
+    }
 
-    elements.alarmName.value = '';
-    elements.alarmDate.value = '';
     await loadAlarms();
-    setMessage(elements.message, 'Alarme salvo.', 'success');
+    setMessage(elements.message, editingAlarmId ? 'Alarme atualizado.' : 'Alarme salvo.', 'success');
     setCreateModal(false);
+    prepareNewAlarm();
   } catch (error) {
     setMessage(elements.message, error instanceof Error ? error.message : 'Não foi possível salvar o alarme.', 'error');
   }
@@ -392,6 +427,7 @@ function renderAlarmList() {
         <small>${alarm.scheduledDate ? `Data: ${new Date(`${alarm.scheduledDate}T00:00:00`).toLocaleDateString('pt-BR')}` : weekdaySummary(alarm.weekdays || allWeekdays)}${alarm.name ? ` · ${alarm.name}` : ''}</small>
       </div>
       <div>
+        <button type="button" class="edit-alarm" data-edit-alarm="${alarm.id}">Editar</button>
         <label class="alarm-toggle" aria-label="${alarm.enabled ? 'Desativar' : 'Ativar'} ${alarm.name}">
           <input type="checkbox" data-toggle-alarm="${alarm.id}" ${alarm.enabled ? 'checked' : ''}>
           <span class="toggle-track"></span>
@@ -417,7 +453,10 @@ function watchSavedAlarms() {
 }
 
 elements.alarmForm.addEventListener('submit', scheduleAlarm);
-elements.openCreateBtn.addEventListener('click', () => setCreateModal(true));
+elements.openCreateBtn.addEventListener('click', () => {
+  prepareNewAlarm();
+  setCreateModal(true);
+});
 elements.closeCreateBtn.addEventListener('click', () => setCreateModal(false));
 elements.createModal.addEventListener('click', (event) => {
   if (event.target === elements.createModal) setCreateModal(false);
@@ -429,6 +468,9 @@ elements.alarmList.addEventListener('click', (event) => {
   const target = event.target;
   if (target instanceof HTMLElement && target.dataset.deleteAlarm) {
     deleteAlarm(target.dataset.deleteAlarm);
+  }
+  if (target instanceof HTMLElement && target.dataset.editAlarm) {
+    editAlarm(target.dataset.editAlarm);
   }
 });
 elements.alarmList.addEventListener('change', (event) => {
